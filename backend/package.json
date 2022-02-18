@@ -1,6 +1,9 @@
 {
   "dependencies": {
     "body-parser": "^1.19.2",
-    "express": "^4.17.3"
+    "express": "^4.17.3",
+    "jsdom": "^19.0.0",
+    "mongoose": "^6.2.2",
+    "superagent": "^7.1.1"
   }
 }
