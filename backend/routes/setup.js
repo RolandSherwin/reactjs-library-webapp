@@ -16,8 +16,9 @@ router.get('/getBookDetails', async (req, res, next)=>{
 router.get('/setupDB', async(req,res,next)=>{
     try{
         await setupService.setupDB()
+        res.send("DB Succesfully setup!")
     }catch(e){next(e)}
-    res.send("DB Succesfully setup!")
+    
 })
 
 module.exports = router

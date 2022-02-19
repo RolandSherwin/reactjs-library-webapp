@@ -11,10 +11,7 @@ let bookSchema = new mongoose.Schema({
     'subjects': [String],
     'rating': Number,
     'ratingCount': Number,
-    'image': {
-        data: Buffer,
-        contentType: String,
-    }
+    'image': Buffer
 }, {collection: 'books'})
 
 let connection = {}
