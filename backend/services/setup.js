@@ -1,5 +1,8 @@
 const {JSDOM} = require("jsdom")
 const superagent = require("superagent")
+const connection = require('../utils/connection')
+const fs = require('fs')
+
 const BOOK_ID_LIST = ['OL28267487M','OL8193418W', 'OL362702W', 'OL455305W', 'OL7979417W', 'OL14942956W', 'OL361466W', 'OL74504W', 'OL985560M',
     'OL482894W', 'OL74666W', 'OL106084W', 'OL2636674W', 'OL74676W', 'OL1858679W', 'OL27258W', 'OL4082696W', 'OL47287W', 'OL2636675W', 
     'OL505439W', 'OL10695417W', 'OL228705W', 'OL103113W', 'OL500177W', 'OL1863530W', 'OL2172454W', 'OL463836W', 'OL481155W', 'OL31259W',
@@ -8,12 +11,9 @@ const BOOK_ID_LIST = ['OL28267487M','OL8193418W', 'OL362702W', 'OL455305W', 'OL7
     'OL71037W', 'OL2430167W', 'OL1168007W', 'OL276798W', 'OL23205W', 'OL267933W', 'OL98474W', 'OL627084W', 'OL2944469W', 'OL1386747W', 'OL268217W',
     'OL1855944W', 'OL2897798W', 'OL59038W', 'OL52266W'
     ]
-// const BOOK_ID_LIST = ['OL3140834W']
-// const BOOK_ID_LIST = ['OL28267487M','OL8193418W', 'OL362702W', 'OL455305W', 'OL7979417W', 'OL14942956W', 'OL361466W', 'OL74504W', 'OL985560M', "OL1386747W"]
-
 
 const getSingleBook = async(OLBookId) => {
-    console.log(OLBookId)
+    // console.log(OLBookId)
     try{
         var response = await superagent.get("https://openlibrary.org/books/"+OLBookId)
         var dom = new JSDOM(response.text)
@@ -128,5 +128,15 @@ exports.getBookDetails = async()=>{
 }
 
 exports.setupDB = async() => {
-    
+    let bookCollection = await connection.getBookCollection()
+    const bookList =  JSON.parse(fs.readFileSync(__dirname+"/../bookList.json"))
+    let del = await bookCollection.deleteMany({})
+    let res = await bookCollection.insertMany(bookList)
+    if (res){
+        console.log("'books' collection deleted and inserted!")
+    }else{
+        let err = new Error("Error while inserting into books collection")
+        err.status = 500
+        throw err
+    }
 }

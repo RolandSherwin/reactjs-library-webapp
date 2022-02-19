@@ -1,0 +1,9 @@
+2022-02-19T21:19:32.414Z - Error: ENOENT: no such file or directory, open 'E:\New-Folder-2\Projects\library-webapp-reactjs\backend\routes../bookList.json'
+    at Object.openSync (node:fs:585:3)
+    at Object.writeFileSync (node:fs:2153:35)
+    at E:\New-Folder-2\Projects\library-webapp-reactjs\backend\routes\setup.js:9:12
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2022-02-19T21:36:23.173Z - Error: Error while inserting into books collection
+    at Object.exports.setupDB (E:\New-Folder-2\Projects\library-webapp-reactjs\backend\services\setup.js:136:19)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at async E:\New-Folder-2\Projects\library-webapp-reactjs\backend\routes\setup.js:18:9

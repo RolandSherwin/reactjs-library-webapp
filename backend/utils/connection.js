@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
 
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/library-webapp-reactjs', { useNewUrlParser: true, useUnifiedTopology:true, })
 
-let bookSchema = mongoose.Schema({
+let bookSchema = new mongoose.Schema({
     'title': String,
-    'author': String,
+    'author': [String],
     'year': String,
     'description': String,
     'workDescription': String,
@@ -19,5 +18,13 @@ let bookSchema = mongoose.Schema({
 }, {collection: 'books'})
 
 let connection = {}
-// connection.getCollection
-// let mongoose.model("books", bookSchema)
+connection.getBookCollection = async()=>{
+    try{
+        return (await mongoose.connect('mongodb://localhost:27017/library-webapp-reactjs', { useNewUrlParser: true, useUnifiedTopology:true, })).model("books", bookSchema)
+    } catch(err){
+        let error = new Error("Could not connect to books")
+        error.status = 500
+        throw error
+    }
+}
+module.exports = connection
