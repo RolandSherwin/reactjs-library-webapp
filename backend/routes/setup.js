@@ -4,7 +4,7 @@ const router = express.Router()
 const fs = require('fs')
 
 router.get('/getBookDetails', async (req, res, next)=>{
-    var bookList = await setupService.getBookDetails()
+    var bookList = await setupService.getBookDetailsInParallel(8)
     fs.writeFile(__dirname + '/../bookList.json', JSON.stringify(bookList), err=>{
         if(err){
             console.log("Error writing bookList")
