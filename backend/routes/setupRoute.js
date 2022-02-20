@@ -1,5 +1,5 @@
 const express = require("express");
-const setupService = require("../services/setup.js");
+const setupService = require("../services/setupService");
 const router = express.Router();
 const fs = require("fs");
 
