@@ -1,0 +1,29 @@
+[
+    {
+        "userId": "U1001",
+        "name": "Roland",
+        "email": "roland@gmail.com",
+        "phone": "1234567890",
+        "password": "roland@123",
+        "reservedBooks": [],
+        "borrowedBooks": ["OL28267487M", "OL74666W"]
+    },
+    {
+        "userId": "U1002",
+        "name": "Sherwin",
+        "email": "sherwin@gmail.com",
+        "phone": "1231231230",
+        "password": "sherwin@123",
+        "reservedBooks": [],
+        "borrowedBooks": ["OL74666W"]
+    },
+    {
+        "userId": "U1003",
+        "name": "Tej",
+        "email": "tej@gmail.com",
+        "phone": "1112223330",
+        "password": "tej@123",
+        "reservedBooks": [],
+        "borrowedBooks": []
+    }
+]

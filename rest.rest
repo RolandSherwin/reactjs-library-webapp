@@ -1,4 +1,8 @@
-GET https://openlibrary.org/api/books?bibkeys=ISBN:1501111671&format=json&jscmd=data
+### Download books data - and stores in bookList.json
+GET http://localhost:3000/downloadBooks
 
-###
-GET https://openlibrary.org/books/OL33989998M
+### SetupDB - wipes users, books collection and insersts data from userList.json and bookList.json
+GET http://localhost:3000/setupDB
+
+### getAllBooks from books collection
+GET http://localhost:3000/getAllBooks

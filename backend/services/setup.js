@@ -61,6 +61,9 @@ const getSingleBook = async(OLBookId) => {
         let imageName = imageURL.split('/').pop()
         let imagePath = path.join(__dirname, "/../assets/coverImages/", imageName)
         let image = {'name': imageName, 'url':imageURL, 'path':imagePath}
+
+        // random number between 1 and 3
+        let booksAvailable = Math.floor(Math.random() * 3) + 1 
         let obj = {
             'OLId': OLBookId,
             'title': title,
@@ -71,7 +74,8 @@ const getSingleBook = async(OLBookId) => {
             'subjects': subjects,
             'rating': rating,
             'ratingCount': ratingCount,
-            'image': image
+            'image': image,
+            'booksAvailable': booksAvailable
         }
         console.log("Fetched " + title)
         return new Promise(resolve => resolve(obj))
@@ -118,12 +122,10 @@ exports.downloadBooksInParallel = async(n_parallel = 5)=>{
     }
     return bookList
 
-    // let bookList = await Promise.allSettled(BOOK_ID_LIST.map(id => getSingleBook(id)))
-    // // console.log(bookList.title)
-    // return bookList
+
 }
 
-// old method to download all books at once
+// old method to download all books at once; both sync and async
 exports.downloadBooks = async()=>{
     bookList = []
     for (let id of BOOK_ID_LIST){
@@ -132,6 +134,9 @@ exports.downloadBooks = async()=>{
         bookList.push(book)
     }
     return bookList
+    // let bookList = await Promise.allSettled(BOOK_ID_LIST.map(id => getSingleBook(id)))
+    // // console.log(bookList.title)
+    // return bookList
 }
 
 const downloadImage = async(imgUrl, imgPath)=>{
@@ -153,14 +158,24 @@ exports.setupDB = async() => {
     for (let b=0; b<bookList.length; b++){
         downloadImage(bookList[b].image.url, bookList[b].image.path)
     }
-    // console.log(bookList)
-
-    let del = await bookCollection.deleteMany({})
-    let res = await bookCollection.insertMany(bookList)
-    if (res){
+    let bookDel = await bookCollection.deleteMany({})
+    let bookIns = await bookCollection.insertMany(bookList)
+    if (bookIns){
         console.log("'books' collection deleted and inserted!")
     }else{
-        let err = new Error("Error while inserting into books collection")
+        let err = new Error("Error while inserting into 'books' collection")
+        err.status = 500
+        throw err
+    }
+
+    let userCollection = await connection.getUserCollection()
+    const userList = JSON.parse(fs.readFileSync(__dirname + "/../userList.json"))
+    let userDel = await userCollection.deleteMany({})
+    let userIns = await userCollection.insertMany(userList)
+    if (userIns){
+        console.log("'users' collection deleted and inserted")
+    }else{
+        let err = new Error("Error while inserting into 'users' collection")
         err.status = 500
         throw err
     }
