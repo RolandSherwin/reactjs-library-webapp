@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
-
 mongoose.Promise = global.Promise;
+try{
+    mongoose.connect('mongodb://localhost:27017/library-webapp-reactjs', { useNewUrlParser: true, useUnifiedTopology:true, })
+}catch(e){
+    let error = new Error("Could not connect to MongoDB")
+    error.status = 500
+    throw error
+}
 
 let bookSchema = new mongoose.Schema({
     'OLId': String,
@@ -30,23 +36,9 @@ let userSchema = new mongoose.Schema({
     'borrowedBooks': [String]
 }, {collection: 'users'})
 
-let connection = {}
-connection.getBookCollection = async()=>{
-    try{
-        return (await mongoose.connect('mongodb://localhost:27017/library-webapp-reactjs', { useNewUrlParser: true, useUnifiedTopology:true, })).model("books", bookSchema)
-    } catch(err){
-        let error = new Error("Could not connect to books collection")
-        error.status = 500
-        throw error
-    }
+exports.getBookCollection = async()=>{
+    return mongoose.model("books", bookSchema)
 }
-connection.getUserCollection = async()=>{
-    try{
-        return (await mongoose.connect('mongodb://localhost:27017/library-webapp-reactjs', { useNewUrlParser: true, useUnifiedTopology:true, })).model("users", userSchema)
-    }catch(err){
-        let error = new Error("Could not connect to users collection")
-        error.status = 500
-        throw error
-    }
+exports.getUserCollection = async()=>{
+    return mongoose.model("users", userSchema)
 }
-module.exports = connection

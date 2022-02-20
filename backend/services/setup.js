@@ -4,15 +4,15 @@ const connection = require('../utils/connection')
 const fs = require('fs')
 const path = require("path")
 
-// const BOOK_ID_LIST = ['OL28267487M','OL8193418W', 'OL362702W', 'OL455305W', 'OL7979417W', 'OL14942956W', 'OL361466W', 'OL74504W', 'OL985560M',
-//     'OL482894W', 'OL74666W', 'OL106084W', 'OL2636674W', 'OL74676W', 'OL1858679W', 'OL27258W', 'OL4082696W', 'OL47287W', 'OL2636675W', 
-//     'OL505439W', 'OL10695417W', 'OL228705W', 'OL103113W', 'OL500177W', 'OL1863530W', 'OL2172454W', 'OL463836W', 'OL481155W', 'OL31259W',
-//     'OL106077W', 'OL23768406W', 'OL24340933W', 'OL20901113W', 'OL20168871W', 'OL24513723W', 'OL24314956W', 'OL17883071W', 'OL17199665W', 
-//     'OL276558W', 'OL8162628W', 'OL19359025W', 'OL24918839W', 'OL24254767W', 'OL3140834W', 'OL22835840W', 'OL27448W', 'OL3335292W', 'OL3871697W',
-//     'OL71037W', 'OL2430167W', 'OL1168007W', 'OL276798W', 'OL23205W', 'OL267933W', 'OL98474W', 'OL627084W', 'OL2944469W', 'OL1386747W', 'OL268217W',
-//     'OL1855944W', 'OL2897798W', 'OL59038W', 'OL52266W'
-//     ]
-const BOOK_ID_LIST = ['OL28267487M']
+const BOOK_ID_LIST = ['OL28267487M','OL8193418W', 'OL362702W', 'OL455305W', 'OL7979417W', 'OL14942956W', 'OL361466W', 'OL74504W', 'OL985560M',
+    'OL482894W', 'OL74666W', 'OL106084W', 'OL2636674W', 'OL74676W', 'OL1858679W', 'OL27258W', 'OL4082696W', 'OL47287W', 'OL2636675W', 
+    'OL505439W', 'OL10695417W', 'OL228705W', 'OL103113W', 'OL500177W', 'OL1863530W', 'OL2172454W', 'OL463836W', 'OL481155W', 'OL31259W',
+    'OL106077W', 'OL23768406W', 'OL24340933W', 'OL20901113W', 'OL20168871W', 'OL24513723W', 'OL24314956W', 'OL17883071W', 'OL17199665W', 
+    'OL276558W', 'OL8162628W', 'OL19359025W', 'OL24918839W', 'OL24254767W', 'OL3140834W', 'OL1168083W', 'OL27448W', 'OL3335292W', 'OL3871697W',
+    'OL71037W', 'OL2430167W', 'OL1168007W', 'OL276798W', 'OL23205W', 'OL267933W', 'OL98474W', 'OL627084W', 'OL2944469W', 'OL1386747W', 'OL268217W',
+    'OL1855944W', 'OL2897798W', 'OL59038W', 'OL52266W'
+    ]
+
 
 const getSingleBook = async(OLBookId) => {
     // console.log(OLBookId)
@@ -57,10 +57,17 @@ const getSingleBook = async(OLBookId) => {
         document.querySelectorAll('div.section:nth-child(1) > span:nth-child(2) > a').forEach(ele => {
             subjects.push(ele.innerHTML)
         })
-        let imageURL = "https:" + document.querySelector('img[itemprop="image"]').getAttribute('src')
-        let imageName = imageURL.split('/').pop()
-        let imagePath = path.join(__dirname, "/../assets/coverImages/", imageName)
-        let image = {'name': imageName, 'url':imageURL, 'path':imagePath}
+
+        let smallImageURL = document.querySelector('img[itemprop="image"]').getAttribute('src')
+        let imageURL = ""
+        let imageName = ""
+        let imagePath = ""
+        if (smallImageURL){
+            imageURL = "https:" + document.querySelector('img[itemprop="image"]').getAttribute('src')
+            imageName = imageURL.split('/').pop()
+            imagePath = path.join(__dirname, "/../assets/coverImages/", imageName)
+        }
+        image = {'name': imageName, 'url':imageURL, 'path':imagePath}
 
         // random number between 1 and 3
         let booksAvailable = Math.floor(Math.random() * 3) + 1 
@@ -118,11 +125,8 @@ exports.downloadBooksInParallel = async(n_parallel = 5)=>{
                 bookList.push(book.value)
             }
         }
-
     }
     return bookList
-
-
 }
 
 // old method to download all books at once; both sync and async
@@ -140,23 +144,27 @@ exports.downloadBooks = async()=>{
 }
 
 const downloadImage = async(imgUrl, imgPath)=>{
-    let image = (await superagent.get(imgUrl)).body
     if (fs.existsSync(imgPath)){
         console.log("Image already exists at " + imgPath)
     }else{
-        fs.writeFile(imgPath, image, err=>{
-            if (err){
-                console.log("downloadImage(): Error occured while writing image", err.stack)
-            }
-        })
+        let image = ''
+        try{
+            image = (await superagent.get(imgUrl)).body
+        }catch{
+            console.log("Error downlaoding image: " + imgUrl)
+        }
+        console.log("Donwloading: " + imgUrl)
+        fs.writeFileSync(imgPath, image)
     }
 }
 exports.setupDB = async() => {
-    let bookCollection = await connection.getBookCollection()
-    const bookList =  JSON.parse(fs.readFileSync(__dirname+"/../bookList.json"))
-    // download images
+    let bookCollection =  await connection.getBookCollection()
+    let bookList =  JSON.parse(fs.readFileSync(__dirname+"/../bookList.json"))
     for (let b=0; b<bookList.length; b++){
-        downloadImage(bookList[b].image.url, bookList[b].image.path)
+        let imgObj = bookList[b].image
+        if (imgObj.url){
+            await downloadImage(imgObj.url, imgObj.path)
+        }
     }
     let bookDel = await bookCollection.deleteMany({})
     let bookIns = await bookCollection.insertMany(bookList)

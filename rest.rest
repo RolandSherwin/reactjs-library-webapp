@@ -6,3 +6,6 @@ GET http://localhost:3000/setupDB
 
 ### getAllBooks from books collection
 GET http://localhost:3000/getAllBooks
+
+### getAllUsers from users collection
+GET http://localhost:3000/getAllUsers

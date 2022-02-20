@@ -1,10 +1,9 @@
 const connection = require('../utils/connection')
-const fs = require('fs')
 
 exports.getAllBooks = async() => {
     const bookCollection =  await connection.getBookCollection()
 
-    let bookList = await bookCollection.find({})
+    let bookList = await bookCollection.find({}, {_id:0, __v:0})
     if (!bookList){
         let err = new Error("getAllBooks(): Error during find()")
         err.status = 500
