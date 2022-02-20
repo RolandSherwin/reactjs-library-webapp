@@ -82,7 +82,8 @@ const getSingleBook = async(OLBookId) => {
             'rating': rating,
             'ratingCount': ratingCount,
             'image': image,
-            'booksAvailable': booksAvailable
+            'booksAvailable': booksAvailable,
+            'reservationQueue': []
         }
         console.log("Fetched " + title)
         return new Promise(resolve => resolve(obj))

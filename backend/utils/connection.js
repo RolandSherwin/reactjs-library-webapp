@@ -23,7 +23,8 @@ let bookSchema = new mongoose.Schema({
         url: String,
         path: String,
     },
-    'booksAvailable': Number
+    'booksAvailable': Number,
+    'reservationQueue': [String]
 }, {collection: 'books'})
 
 let userSchema = new mongoose.Schema({
@@ -36,9 +37,9 @@ let userSchema = new mongoose.Schema({
     'borrowedBooks': [String]
 }, {collection: 'users'})
 
-exports.getBookCollection = async()=>{
-    return mongoose.model("books", bookSchema)
-}
-exports.getUserCollection = async()=>{
-    return mongoose.model("users", userSchema)
-}
+exports.getBookCollection = async () => {
+    return mongoose.model("books", bookSchema);
+};
+exports.getUserCollection = async () => {
+    return mongoose.model("users", userSchema);
+};
