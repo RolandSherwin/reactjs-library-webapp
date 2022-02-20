@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 
 let bookSchema = new mongoose.Schema({
+    'OLId': String,
     'title': String,
     'author': [String],
     'year': String,
@@ -11,7 +12,11 @@ let bookSchema = new mongoose.Schema({
     'subjects': [String],
     'rating': Number,
     'ratingCount': Number,
-    'image': Buffer
+    'image': {
+        name: String,
+        url: String,
+        path: String,
+    }
 }, {collection: 'books'})
 
 let connection = {}

@@ -2,6 +2,7 @@ const {JSDOM} = require("jsdom")
 const superagent = require("superagent")
 const connection = require('../utils/connection')
 const fs = require('fs')
+const path = require("path")
 
 // const BOOK_ID_LIST = ['OL28267487M','OL8193418W', 'OL362702W', 'OL455305W', 'OL7979417W', 'OL14942956W', 'OL361466W', 'OL74504W', 'OL985560M',
 //     'OL482894W', 'OL74666W', 'OL106084W', 'OL2636674W', 'OL74676W', 'OL1858679W', 'OL27258W', 'OL4082696W', 'OL47287W', 'OL2636675W', 
@@ -23,17 +24,17 @@ const getSingleBook = async(OLBookId) => {
         return new Promise((resolve, reject) => reject("Page does not exist!"))
     }
     try{
-        title = document.querySelector("h1.work-title").innerHTML.replace(/<[^>]*>/gm, "")
-        author = []
+        let title = document.querySelector("h1.work-title").innerHTML.replace(/<[^>]*>/gm, "")
+        let author = []
         document.querySelectorAll('.edition-byline > a').forEach((ele)=>{
             author.push(ele.innerHTML)
         })
-        year = document.querySelector('strong[itemprop="datePublished"]').innerHTML
-        description = document.querySelector(".book-description-content").innerHTML.replace(/<[^>]*>/gm, "").trim()
+        let year = document.querySelector('strong[itemprop="datePublished"]').innerHTML
+        let description = document.querySelector(".book-description-content").innerHTML.replace(/<[^>]*>/gm, "").trim()
         if (description == "This edition doesn't have a description yet. Can you add one?"){
             description = ""
         }
-        workDescription = document.querySelector(".work-description")
+        let workDescription = document.querySelector(".work-description")
         if (workDescription){
             workDescription = workDescription.innerHTML
             .replace(/<[^>]*>/gm, "")
@@ -42,22 +43,26 @@ const getSingleBook = async(OLBookId) => {
         }else{
             workDescription = ""
         }
-        rating = document.querySelector('span[itemprop="ratingValue"]')
+        let rating = document.querySelector('span[itemprop="ratingValue"]')
         if (rating) {
             rating = rating.innerHTML
         } else{
             rating = '0.00'
         }
-        ratingCount = document.querySelector('span[itemprop="reviewCount"]').innerHTML
+        let ratingCount = document.querySelector('span[itemprop="reviewCount"]').innerHTML
         if (ratingCount === null) {
             ratingCount = '0'
         }
-        subjects = []
+        let subjects = []
         document.querySelectorAll('div.section:nth-child(1) > span:nth-child(2) > a').forEach(ele => {
             subjects.push(ele.innerHTML)
         })
-        imageURL = "https:" + document.querySelector('img[itemprop="image"]').getAttribute('src')
+        let imageURL = "https:" + document.querySelector('img[itemprop="image"]').getAttribute('src')
+        let imageName = imageURL.split('/').pop()
+        let imagePath = path.join(__dirname, "/../assets/coverImages/", imageName)
+        let image = {'name': imageName, 'url':imageURL, 'path':imagePath}
         let obj = {
+            'OLId': OLBookId,
             'title': title,
             'author': author,
             'year': year,
@@ -66,7 +71,7 @@ const getSingleBook = async(OLBookId) => {
             'subjects': subjects,
             'rating': rating,
             'ratingCount': ratingCount,
-            'imageURL': imageURL
+            'image': image
         }
         console.log("Fetched " + title)
         return new Promise(resolve => resolve(obj))
@@ -75,7 +80,7 @@ const getSingleBook = async(OLBookId) => {
     }
 }
 
-exports.getBookDetailsInParallel = async(n_parallel = 5)=>{
+exports.downloadBooksInParallel = async(n_parallel = 5)=>{
     // fetching every book in parallel leads to page not exist error
     // so need to fetch batches of size n_parallel at a time
     if (n_parallel > BOOK_ID_LIST.length){
@@ -117,25 +122,38 @@ exports.getBookDetailsInParallel = async(n_parallel = 5)=>{
     // // console.log(bookList.title)
     // return bookList
 }
-exports.getBookDetails = async()=>{
+
+// old method to download all books at once
+exports.downloadBooks = async()=>{
     bookList = []
     for (let id of BOOK_ID_LIST){
         let book = await getSingleBook(id)
-        console.log(book.title)
+        // console.log(book.title)
         bookList.push(book)
     }
     return bookList
 }
 
+const downloadImage = async(imgUrl, imgPath)=>{
+    let image = (await superagent.get(imgUrl)).body
+    if (fs.existsSync(imgPath)){
+        console.log("Image already exists at " + imgPath)
+    }else{
+        fs.writeFile(imgPath, image, err=>{
+            if (err){
+                console.log("downloadImage(): Error occured while writing image", err.stack)
+            }
+        })
+    }
+}
 exports.setupDB = async() => {
     let bookCollection = await connection.getBookCollection()
     const bookList =  JSON.parse(fs.readFileSync(__dirname+"/../bookList.json"))
     // download images
     for (let b=0; b<bookList.length; b++){
-        let image = (await superagent.get(bookList[b].imageURL)).body
-        bookList[b].image = image
+        downloadImage(bookList[b].image.url, bookList[b].image.path)
     }
-    console.log(bookList)
+    // console.log(bookList)
 
     let del = await bookCollection.deleteMany({})
     let res = await bookCollection.insertMany(bookList)
