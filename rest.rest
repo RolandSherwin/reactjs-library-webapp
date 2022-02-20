@@ -1,11 +1,21 @@
+####################### SETUP #######################
 ### Download books data - and stores in bookList.json
 GET http://localhost:3000/downloadBooks
 
 ### SetupDB - wipes users, books collection and insersts data from userList.json and bookList.json
 GET http://localhost:3000/setupDB
 
-### getAllBooks from books collection
+####################### USER #######################
+GET http://localhost:3000/getAllUsers
+
+### user BookDetails
+GET http://localhost:3000/getUserBorrowedBooks/U1001
+###
+GET http://localhost:3000/getUserReservedBooks/U1001
+###
+GET http://localhost:3000/getUserBookDetails/U1001
+
+####################### BOOK #######################
 GET http://localhost:3000/getAllBooks
 
-### getAllUsers from users collection
-GET http://localhost:3000/getAllUsers
+####################### ACTIONS #######################
