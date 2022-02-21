@@ -28,13 +28,13 @@ content-type: application/json
     "OLId": "OL362702W"
 }
 
-### return book
+### return book OL362702W(borrow first), OL2944469W(make u1001,3 resreve first and 1002 return it)
 POST http://localhost:3000/returnBook
 content-type: application/json
 
 {
-    "userId": "U1001",
-    "OLId": "OL362702W"
+    "userId": "U1002",
+    "OLId": "OL2944469W"
 }
 
 ### reserve book - OL2944469W (0), OL1855944W(1), OL8193418W (0, borrowed), 

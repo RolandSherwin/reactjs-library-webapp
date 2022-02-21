@@ -15,7 +15,7 @@
         "phone": "1231231230",
         "password": "sherwin@123",
         "reservedBooks": [],
-        "borrowedBooks": ["OL74666W"]
+        "borrowedBooks": ["OL74666W", "OL2944469W"]
     },
     {
         "userId": "U1003",

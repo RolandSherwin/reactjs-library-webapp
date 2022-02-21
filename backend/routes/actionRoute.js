@@ -8,6 +8,7 @@ router.post("/borrowBook", async (req, res, next) => {
     let returnVal = {}
 
     try{
+        console.log("\n/borrowBook");
         returnVal = await actionService.borrowBook(userId, OLId);
         res.json(returnVal);
     }catch(err){
@@ -21,6 +22,7 @@ router.post("/returnBook", async (req, res, next) => {
     let returnVal = {}
 
     try{
+        console.log("\nreturnBook");
         returnVal = await actionService.returnBook(userId, OLId);
         res.json(returnVal);
     }catch(err){
@@ -34,6 +36,7 @@ router.post("/reserveBook", async (req, res, next) => {
     let returnVal = {}
 
     try{
+        console.log("\nreserveBook");
         returnVal = await actionService.reserveBook(userId, OLId);
         res.json(returnVal);
     }catch(err){
