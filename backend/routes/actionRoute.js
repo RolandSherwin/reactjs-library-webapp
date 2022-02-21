@@ -5,11 +5,11 @@ const actionService = require('../services/actionService')
 router.post("/borrowBook", async (req, res, next) => {
     let userId = req.body.userId;
     let OLId = req.body.OLId;
-    let user = {}
+    let returnVal = {}
 
     try{
-        user = await actionService.borrowBook(userId, OLId);
-        res.json(user);
+        returnVal = await actionService.borrowBook(userId, OLId);
+        res.json(returnVal);
     }catch(err){
         next(err)
     }
@@ -18,11 +18,24 @@ router.post("/borrowBook", async (req, res, next) => {
 router.post("/returnBook", async (req, res, next) => {
     let userId = req.body.userId;
     let OLId = req.body.OLId;
-    let user = {}
+    let returnVal = {}
 
     try{
-        user = await actionService.returnBook(userId, OLId);
-        res.json(user);
+        returnVal = await actionService.returnBook(userId, OLId);
+        res.json(returnVal);
+    }catch(err){
+        next(err)
+    }
+});
+
+router.post("/reserveBook", async (req, res, next) => {
+    let userId = req.body.userId;
+    let OLId = req.body.OLId;
+    let returnVal = {}
+
+    try{
+        returnVal = await actionService.reserveBook(userId, OLId);
+        res.json(returnVal);
     }catch(err){
         next(err)
     }

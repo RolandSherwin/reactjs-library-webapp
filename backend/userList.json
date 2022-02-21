@@ -6,7 +6,7 @@
         "phone": "1234567890",
         "password": "roland@123",
         "reservedBooks": [],
-        "borrowedBooks": ["OL28267487M", "OL74666W"]
+        "borrowedBooks": ["OL28267487M", "OL74666W", "OL8193418W"]
     },
     {
         "userId": "U1002",

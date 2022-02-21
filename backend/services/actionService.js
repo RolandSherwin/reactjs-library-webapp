@@ -8,21 +8,19 @@ exports.borrowBook = async (userId, OLId) => {
     const userDetails = await getUserDetails(userId);
 
     // check if book is available
-    let booksAvailable = bookDetails.booksAvailable;
-    if (booksAvailable <=0){
-        let err = new Error("borrowBook(): No books are available to borrow");
+    if (bookDetails.booksAvailable <=0){
+        let err = new Error("No books("+OLId+") are available to borrow!");
         err.status = 404;
         throw err;
     }
-    // check if user has already borrowed the same book
-    let borrowedBooks = userDetails.borrowedBooks;
-    if (borrowedBooks.includes(OLId)){
-        let err = new Error("borrowBook(): User has already borrowed the the book with Id: " + OLId);
+    // user should not have borrowed it already
+    if (userDetails.borrowedBooks.includes(OLId)){
+        let err = new Error("User("+userId+") has already borrowed the book with OLId: "+OLId);
         err.status = 404;
         throw err;
     }
     // borrow book
-    console.log("Before BORROW:\n(available, borrow list): ", booksAvailable, borrowedBooks);
+    console.log("Before BORROW:\n(available, borrow list): ", bookDetails.booksAvailable, userDetails.borrowedBooks);
     let bookUpdate = await bookCollection.updateOne({'OLId': OLId}, {$inc: {'booksAvailable': -1}});
     let userUpdate = await userCollection.updateOne({'userId': userId}, {$push: {'borrowedBooks': OLId}});
     
@@ -43,15 +41,14 @@ exports.returnBook = async (userId, OLId) => {
     const userDetails = await getUserDetails(userId);
     
     // check if user has the book
-    let borrowedBooks = userDetails.borrowedBooks;
-    if (!borrowedBooks.includes(OLId)){
-        let err = new Error("returnBook(): User "+userId+ " has not borrwoed the book with OLId: " +OLId);
+    if (!userDetails.borrowedBooks.includes(OLId)){
+        let err = new Error("User("+userId+") has not borrwoed the book with OLId: "+OLId);
         err.status = 404;
         throw err;
     }
 
     // return book
-    console.log("Before RETURN:\n(available, borrow list): ", bookDetails.booksAvailable, borrowedBooks);
+    console.log("Before RETURN:\n(available, borrow list): ", bookDetails.booksAvailable, userDetails.borrowedBooks);
     let bookUpdate = await bookCollection.updateOne({'OLId': OLId}, {$inc: {'booksAvailable': 1}});
     let userUpdate = await userCollection.updateOne({'userId': userId}, {$pull: {'borrowedBooks': OLId}});
     
@@ -65,15 +62,48 @@ exports.returnBook = async (userId, OLId) => {
 
 // if available book = 0, reserve a book -> add user to queue 
 // for the book; inside return book
-exports.reserveBook = async () => {
+exports.reserveBook = async (userId, OLId) => {
+    const bookCollection = await connection.getBookCollection();
+    const userCollection = await connection.getUserCollection();
+    const bookDetails = await getBookDetails(OLId);
+    const userDetails = await getUserDetails(userId);
 
+    // check if available books = 0
+    if (bookDetails.booksAvailable !=0){
+        let err = new Error("There are: "+bookDetails.booksAvailable+" book(s) available to borrow for OLId: "+OLId);
+        err.status = 404;
+        throw err;
+    }
+    // user should not have borrowed it already
+    if (userDetails.borrowedBooks.includes(OLId)){
+        let err = new Error("User("+userId+") has borrowed the book with OLId: "+OLId+", so cannot reserve it!");
+        err.status = 404;
+        throw err;
+    }
+    // user should not have reserved it already
+    if (userDetails.reservedBooks.includes(OLId) && bookDetails.reservationQueue.includes(userId)){
+        let err = new Error("User("+userId+") has already reserved the book with OLId: "+OLId);
+        err.status = 404;
+        throw err;
+    }
+
+    // reserve book
+    console.log("Before RESERVATION:\n(queue, reserved books): ", bookDetails.reservationQueue, userDetails.reservedBooks);
+    let bookUpdate = await bookCollection.updateOne({'OLId': OLId}, {$push: {'reservationQueue': userId}});
+    let userUpdate = await userCollection.updateOne({'userId': userId}, {$push: {'reservedBooks': OLId}});
+    
+    const updatedBook = await getBookDetails(OLId);
+    const updatedUser = await getUserDetails(userId);
+    console.log("After RESERVATION:\n(queue, reserved books): ", updatedBook.reservationQueue, updatedUser.reservedBooks);
+    
+    return {'updatedUser': updatedUser, 'updatedBook':updatedBook};
 };
 
 async function getUserDetails(userId){
     let userCollection = await connection.getUserCollection();
     let user = await userCollection.findOne({'userId': userId}, {_id:0});
     if (!user){
-        let err = new Error("getUser(): User with UserID: " + userId + " does not exist!");
+        let err = new Error("User with UserID: "+userId+" does not exist!");
         err.status = 404;
         throw err;
     }
@@ -84,7 +114,7 @@ async function getBookDetails(OLId){
     let bookCollection = await connection.getBookCollection();
     let book = await bookCollection.findOne({'OLId': OLId}, {_id:0});
     if (!book){
-        let err = new Error("getBook(): Book with OLId: " + OLId + " does not exist!");
+        let err = new Error("Book with OLId: "+OLId+" does not exist!");
         err.status = 404;
         throw err;
     }

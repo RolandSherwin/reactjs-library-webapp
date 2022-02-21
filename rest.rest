@@ -36,3 +36,12 @@ content-type: application/json
     "userId": "U1001",
     "OLId": "OL362702W"
 }
+
+### reserve book - OL2944469W (0), OL1855944W(1), OL8193418W (0, borrowed), 
+POST http://localhost:3000/reserveBook
+content-type: application/json
+
+{
+    "userId": "U1001",
+    "OLId": "OL2944469W"
+}
