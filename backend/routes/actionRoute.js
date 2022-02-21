@@ -15,4 +15,17 @@ router.post("/borrowBook", async (req, res, next) => {
     }
 });
 
+router.post("/returnBook", async (req, res, next) => {
+    let userId = req.body.userId;
+    let OLId = req.body.OLId;
+    let user = {}
+
+    try{
+        user = await actionService.returnBook(userId, OLId);
+        res.json(user);
+    }catch(err){
+        next(err)
+    }
+});
+
 module.exports = router;

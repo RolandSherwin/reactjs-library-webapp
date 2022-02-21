@@ -19,8 +19,17 @@ GET http://localhost:3000/getUserBookDetails/U1001
 GET http://localhost:3000/getAllBooks
 
 ####################### ACTIONS #######################
-### userID: U1001 OL28267487M OL362702W 
+### borrow book:  U1001 OL28267487M OL362702W
 POST http://localhost:3000/borrowBook
+content-type: application/json
+
+{
+    "userId": "U1001",
+    "OLId": "OL362702W"
+}
+
+### return book
+POST http://localhost:3000/returnBook
 content-type: application/json
 
 {
