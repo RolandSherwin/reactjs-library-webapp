@@ -1,8 +1,8 @@
 import React from 'react';
-import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-import { Navbar, BookPage, HomePage, LoginPage, RegisterPage, UserPage } from './containers';
-import { Footer } from './components';
+import { HomePage,LoginPage,RegisterPage,BookPage,UserPage } from './pages';
+import Navbar from './components/navbar';
+import Footer from './components/footer';
 
 function App() {
     return (

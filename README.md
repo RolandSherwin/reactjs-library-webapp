@@ -1,4 +1,3 @@
 ## Library WebApp - ReactJS Demo
 
-- [ReactJS folder structure](https://www.youtube.com/watch?v=LMagNcngvcU)
-- [Styling](https://daveceddia.com/use-css-in-react/)
+- [ref](https://www.youtube.com/watch?v=Nl54MJDR2p8)
